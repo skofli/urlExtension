@@ -9,7 +9,7 @@
           integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300&display=swap" rel="stylesheet">
-    <title>Short it!</title>
+    <title>Long it!</title>
 </head>
 <body>
 
@@ -22,7 +22,7 @@
             <div class="col">
                 <div class="block">
                     <h1 style="color: #00adb5;font-family: 'Lato', sans-serif;font-size: 40px;">
-                        Short it!
+                        Long it!
                     </h1>
                 </div>
             </div>
@@ -32,7 +32,7 @@
             <div class="col">
                 <div class="block">
                     <h1 style="color: #00adb5;font-family: 'Lato', sans-serif;font-size: 30px;text-align: center;">
-                        Just paste your ugly link to turn it into a beautiful one!
+                        Just paste your ugly short link to turn it into a beautiful huge one!
                     </h1>
                 </div>
             </div>
@@ -51,7 +51,7 @@
                 <div class="block">
                     <button class="btn btn-outline-secondary" type="button" onclick="btnClick()" id="button-addon2"
                             style="color: #0dcaf0">
-                        Short it!
+                        Long it!
                     </button>
                 </div>
             </div>
@@ -82,7 +82,7 @@
         let inputedUrl = document.getElementById('inputedUrl').value;
         let urlData = {
             redirectUrl: inputedUrl,
-            shortUrl: ""
+            longUrl: ""
         };
         let response = await fetch('http://localhost:8080/set', {
             method: 'POST',
@@ -96,7 +96,7 @@
             urlData = json
             console.log(urlData.redirectUrl)
             let insertData = `<a href="` + urlData.redirectUrl +
-                `" class="link-warning text-center" style="color: #00adb5; font-size: 20px; position: center">` + "Your new cool url - localhost:8080/" + urlData.shortUrl + `</a>`
+                `" class="link-warning text-center" style="color: #00adb5; font-size: 20px; position: center">` + "Your new cool url - localhost:8080/" + urlData.longUrl + `</a>`
             output = document.getElementById('outputText');
             output.insertAdjacentHTML("beforeend", insertData);
         } else {

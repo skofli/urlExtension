@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/jessevdk/go-flags"
 	"github.com/labstack/echo/v4"
 	"log"
 	"math/rand"
@@ -19,12 +20,13 @@ type Interface struct {
 }
 
 type Options struct {
-	Ip string `long:"ip" env:"IP" required:"true" description:"ip of host"`
+	Ip          string `long:"ip" env:"IP" required:"true" description:"ip of host"`
+	Port        string `long:"port" env:"PORT" required:"true" description:"port of host"`
+	ProjectPath string `long:"pp" env:"PP" required:"true" description:"path to project location"`
 }
 
 //New ...
 func New(dbPath string) (*Interface, error) {
-
 	dbConnectInfo := dbPath
 	ctx := context.Background()
 	db, err := pgxpool.Connect(ctx, dbConnectInfo)
@@ -51,21 +53,21 @@ func (d *Interface) InsertUrlToDb(c echo.Context) error {
 				randomChar := charSet[random]
 				output.WriteString(string(randomChar))
 			}
-			urls.ShortUrl = output.String()
+			urls.LongUrl = output.String()
 
-			d.db.Exec(ctx, "insert into urls(redirect_url, short_url) values ($1,$2);", urls.RedirectUrl, d.opts.Ip+urls.ShortUrl)
+			d.db.Exec(ctx, "insert into urls(redirect_url, long_url) values ($1,$2);", urls.RedirectUrl, d.opts.Ip+d.opts.Port+urls.LongUrl)
 			err = c.JSON(http.StatusOK, urls)
 		} else {
 			a, err = d.db.Exec(ctx, "select * from urls where redirect_url = $1;", urls.RedirectUrl)
 			if string(a) == "SELECT 1" {
-				rows, _ := d.db.Query(ctx, "select short_url from urls where redirect_url = $1;", urls.RedirectUrl)
+				rows, _ := d.db.Query(ctx, "select long_url from urls where redirect_url = $1;", urls.RedirectUrl)
 				for rows.Next() {
 					var longUrl string
 					err := rows.Scan(&longUrl)
 					if err != nil {
 						return err
 					}
-					urls.ShortUrl = longUrl
+					urls.LongUrl = longUrl
 					log.Println(urls)
 					err = c.JSON(http.StatusOK, urls)
 					return err
@@ -88,7 +90,7 @@ func (d *Interface) insertUrl(c echo.Context) error {
 		log.Println(err)
 	}
 	if isValidUrl(urls.RedirectUrl) {
-		d.db.Exec(ctx, "insert into urls(redirect_url, short_url) values ($1,$2);", urls.RedirectUrl, urls.ShortUrl)
+		d.db.Exec(ctx, "insert into urls(redirect_url, long_url) values ($1,$2);", urls.RedirectUrl, urls.LongUrl)
 		err = c.JSON(http.StatusOK, urls)
 		return err
 	} else {
@@ -99,12 +101,12 @@ func (d *Interface) insertUrl(c echo.Context) error {
 func (d *Interface) Redirect(c echo.Context, shortUrl string) error {
 	ctx := context.Background()
 	var urls UrlData
-	urls.ShortUrl = shortUrl
+	urls.LongUrl = shortUrl
 
-	a, err := d.db.Exec(ctx, "select * from urls where short_url = $1;", urls.ShortUrl)
+	a, err := d.db.Exec(ctx, "select * from urls where long_url = $1;", urls.LongUrl)
 	log.Println(a)
 	if string(a) == "SELECT 1" {
-		rows, _ := d.db.Query(ctx, "select redirect_url from urls where short_url = $1;", urls.ShortUrl)
+		rows, _ := d.db.Query(ctx, "select redirect_url from urls where long_url = $1;", urls.LongUrl)
 		for rows.Next() {
 			var redirectUrl string
 			err := rows.Scan(&redirectUrl)
@@ -134,4 +136,13 @@ func isValidUrl(toTest string) bool {
 	}
 
 	return true
+}
+
+func parseOpts() Options {
+	var opts Options
+	_, err := flags.Parse(&opts)
+	if err != nil {
+		panic(err)
+	}
+	return opts
 }

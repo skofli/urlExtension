@@ -1,4 +1,4 @@
-module urlShort
+module urlExtension
 
 go 1.16
 

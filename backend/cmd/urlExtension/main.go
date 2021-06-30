@@ -4,8 +4,8 @@ import (
 	"github.com/jessevdk/go-flags"
 	"github.com/skofli/migrator"
 	"os"
-	"urlShort/backend/api"
-	"urlShort/backend/store"
+	"urlExtension/backend/api"
+	"urlExtension/backend/store"
 )
 
 type Options struct {
@@ -25,7 +25,7 @@ func main() {
 		os.Exit(0)
 	}
 	server := api.New(db)
-	if err := server.Run(); err != nil {
+	if err := server.Run(options.Options); err != nil {
 		os.Exit(0)
 	}
 }
