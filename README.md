@@ -1,5 +1,5 @@
-# Url shortener
-Service that allows you to shorten your links
+# Url extention
+Service that allows you to longer your links
 
 + Backend: Go(Echo,pgx)
 + Frontend: Bootstrap 5 + JavaScript
